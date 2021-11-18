@@ -68,7 +68,6 @@ pycparser==2.20
 PyHamcrest==2.0.2
 pylint==2.6.0
 pyOpenSSL==20.0.1
-pypaystack==1.24
 pyphen==0.11.0
 pyRFC3339==1.1
 python-dateutil==2.8.2
