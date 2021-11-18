@@ -1,0 +1,69 @@
+<h1>welcome {{request.user.username}}</h1>
+
+<div style='padding:10px'>
+    <div id='vns' style='height:400px;width:80%;border: 1px solid black; padding:20px; overflow-y:scroll'>
+    </div>
+</div>
+<button type="button" id='btn' onclick='record_audio()'>record</button>
+
+<script>
+    console.log(window.location.pathname)
+    var socket = new WebSocket('ws://'+window.location.host+ window.location.pathname)
+   
+    socket.onmessage = function(e){
+
+        var sender = ''
+        e.data.text()
+        .then(function(text){
+            blob_array = text.split(';')
+            sender = blob_array[blob_array.length-1]
+            if (sender == '{{request.user.username}}'){
+                sender = 'Me'
+            }
+            console.log(sender)
+
+        var audio = document.createElement('audio')
+        var sender_box = document.createElement('p')
+        sender_box.innerText = sender
+        audio.src = URL.createObjectURL(e.data)
+        audio.controls = true
+        
+        var main = document.getElementById('vns')
+        console.log(main)
+        main.append(sender_box)
+        main.append(audio)
+        })
+        
+    }
+
+    constraints = {audio:true}
+    var recorder = ''
+    navigator.mediaDevices.getUserMedia(constraints)
+    .then(function get_stream_data(stream){
+
+        var btn = document.getElementById('btn')
+        recorder = new MediaRecorder(stream)
+        
+    })
+
+    
+    function record_audio(){
+        if (btn.innerText == 'record'){
+            recorder.start()
+            console.log(recorder)
+            btn.innerText = 'recording..' 
+        }
+        
+        else{
+            recorder.stop()
+            recorder.ondataavailable = function(event){
+                console.log(event.data)
+                
+                socket.send(new Blob([event.data,';{{request.user.username}}']) )
+
+            }
+            btn.innerText = 'record'
+        }
+
+    }
+</script>

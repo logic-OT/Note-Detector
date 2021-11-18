@@ -1,0 +1,92 @@
+<style>
+    .counter-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+   #video {transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+}
+.figure{
+    border-radius: 30px;
+}
+</style>
+
+<h1>Home</h1>
+<a href="{%  url 'group_call' %}">Join group</a>
+{% for contact in contacts%}
+    <br><br><a href="{% url 'chat' contact.user.username %}">{{contact.user.username}}</a>,
+
+    {% if contact.is_online %}
+        currently_online
+    {% else %}
+        offline
+    {% endif %}
+{% endfor %}
+<br><br><br><br>
+<h2>Register</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input name='file' id='file'type="file" accept="audio/*" required>
+    <input type="submit">
+</form>
+
+<audio id="audio" controls></audio>
+<audio id="recorded_audio" autoplay controls></audio><button onclick='change_state()' id='state'>record</button>
+
+<hr>
+<h3>Audio Files</h3>
+{% for audio in audio_files %}
+<p>{{audio.file.name}}</p>
+    <audio src="{{audio.file.url}}" controls>
+        
+    </audio>
+    <a href="download/{{audio.file}}">download </a>
+<br>
+{%  empty %}
+    <h4>No audio files</h4>
+{% endfor %}
+
+<h3 id="num"></h3>
+<script>
+    var socket = new WebSocket('ws://'+window.location.host+'/count/')
+
+    var constraints = {audio:true};
+
+    var recorder = ''
+    navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream){
+        document.getElementById('audio').srcObject = stream;
+        recorder = new MediaRecorder(stream);
+
+    })
+    .catch(function(err){
+        console.log(err);
+    });
+
+    function change_state(){
+        if (recorder.state == 'inactive'){
+            document.getElementById('state').innerText = 'recording'
+            recorder.start()
+        }
+        else{
+            document.getElementById('state').innerText = 'record'
+            recorder.stop()
+            recorder.ondataavailable = function(e){
+                console.log(e)
+                console.log(String(URL.createObjectURL(e.data)))
+                console.log(URL.createObjectURL(e.data))
+                document.getElementById('recorded_audio').src = URL.createObjectURL(e.data)
+                var file = new File([e.data],'audio')
+                let container = new DataTransfer();
+                container.items.add(file);
+                document.getElementById('file').files = file
+            }
+        }
+    }
+
+</script>
