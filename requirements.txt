@@ -72,7 +72,6 @@ pypaystack==1.24
 pyphen==0.11.0
 pyRFC3339==1.1
 python-dateutil==2.8.2
-python-paystack==1.2.0
 pytz==2020.4
 requests==2.25.1
 requests-toolbelt==0.9.1
