@@ -28,7 +28,7 @@ def Login(request):
         if user is not None:
             login(request,user)
             print('logged')
-            redirect('home')
+            return redirect('home')
 
     return render(request,'login.html')
 
