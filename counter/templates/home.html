@@ -54,7 +54,7 @@
 <h3 id="num"></h3>
 <script>
     ws_scheme = window.location.protocol.includes('https') ? 'wss':'ws'
-    var socket = new WebSocket(ws_scheme+'//'+window.location.host+'/count/')
+    var socket = new WebSocket(ws_scheme+'://'+window.location.host+'/count/')
 
     var constraints = {audio:true};
 

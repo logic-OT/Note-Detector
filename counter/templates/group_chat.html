@@ -9,7 +9,7 @@
 <script>
     console.log(window.location.pathname)
     var ws_scheme = window.location.protocol.includes('https') ? 'wss':'ws'
-    var socket = new WebSocket(ws_scheme+'//'+window.location.host+ window.location.pathname)
+    var socket = new WebSocket(ws_scheme+'://'+window.location.host+ window.location.pathname)
    
     socket.onmessage = function(e){
 
