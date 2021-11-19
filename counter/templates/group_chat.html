@@ -19,6 +19,7 @@
 
         var sender = ''
         e.data.text()
+        alert('recieved')
         .then(function(text){
             blob_array = text.split(';')
             sender = blob_array[blob_array.length-1]
@@ -37,6 +38,7 @@
         console.log(main)
         main.append(sender_box)
         main.append(audio)
+        audio.play()
         })
         
     }
