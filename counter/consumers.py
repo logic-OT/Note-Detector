@@ -40,9 +40,12 @@ class count(AsyncWebsocketConsumer):
       
 class call(AsyncWebsocketConsumer):
     async def connect(self):
+        print('gfdsdfvf')
+        await self.accept()
+        print('gfdsdfvf')
         self.group_name = self.scope['url_route']['kwargs']['group_name']
         await self.channel_layer.group_add(self.group_name,self.channel_name)
-        await self.accept()
+        
 
     async def receive(self,bytes_data=None,text_data=None):
         await self.channel_layer.group_send(self.group_name,{'type':'audio.message','audio':bytes_data})
