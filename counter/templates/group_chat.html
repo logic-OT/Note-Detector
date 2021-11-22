@@ -45,27 +45,28 @@
 
     var constraints = {audio:true}
     let recorder = '' 
+    let Stream = ''
     function ask(){
-        
+        if (recorder == ''){
         navigator.mediaDevices.getUserMedia(constraints)
         .then(function get_stream_data(stream){
-            if (recorder == ''){
+            
+           Stream = stream
             var btn = document.getElementById('btn')
-            recorder = new MediaRecorder(stream) 
-            }
-            record_audio(recorder,stream)
-
-
+            recorder = new MediaRecorder(stream)
+            
+            btn.click()
         })
-    
         
+        }
+        record_audio(recorder)
     }
 
 
 
     
-    function record_audio(recorder,stream){
-        console.log()
+    function record_audio(){
+        console.log(recorder)
         if (btn.innerText == 'record'){
             recorder.start()
             console.log(recorder)
@@ -73,11 +74,11 @@
         }
  
         else{
-            
             recorder.stop()
-            stream.getAudioTracks().forEach(element => {
-               element.stop()
+            Stream.getAudioTracks().forEach(element => {
+                element.stop()
             });
+            
             recorder.ondataavailable = function(event){
                 console.log(event.data)
                 
@@ -85,6 +86,7 @@
 
             }
             btn.innerText = 'record'
+            recorder = ''
         }
 
     }
