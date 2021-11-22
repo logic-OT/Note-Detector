@@ -53,9 +53,6 @@
             var btn = document.getElementById('btn')
             recorder = new MediaRecorder(stream) 
             }
-            stream.getAudioTracks().forEach(element => {
-               element.stop()
-            });
             record_audio(recorder,stream)
 
 

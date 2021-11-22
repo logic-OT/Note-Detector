@@ -48,7 +48,7 @@ def download(request,file):
     response['Content-Disposition'] = 'attachment;filename={}'.format(file)
     return response
 
-@login_required(login_url='login/')
+@login_required(login_url='login')
 def group_call(request):
     print(request.headers)
     return render(request,'group_chat.html')
