@@ -8,7 +8,7 @@
     <div id='vns' style='height:400px;width:80%;border: 1px solid black; padding:20px; overflow-y:scroll'>
     </div>
 </div>
-<button type="button" id='btn' onclick='record_audio()'>record</button>
+<button type="button" id='btn' onclick='ask()'>record</button>
 
 <script>
     console.log(window.location.pathname)
@@ -43,26 +43,44 @@
         
     }
 
-    constraints = {audio:true}
-    var recorder = '' 
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(function get_stream_data(stream){
-
-        var btn = document.getElementById('btn')
-        recorder = new MediaRecorder(stream)
+    var constraints = {audio:true}
+    let recorder = '' 
+    function ask(){
         
-    })
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(function get_stream_data(stream){
+            if (recorder == ''){
+            var btn = document.getElementById('btn')
+            recorder = new MediaRecorder(stream) 
+            }
+            stream.getAudioTracks().forEach(element => {
+               element.stop()
+            });
+            record_audio(recorder,stream)
+
+
+        })
+    
+        
+    }
+
+
 
     
-    function record_audio(){
+    function record_audio(recorder,stream){
+        console.log()
         if (btn.innerText == 'record'){
             recorder.start()
             console.log(recorder)
             btn.innerText = 'recording..' 
         }
-        
+ 
         else{
+            
             recorder.stop()
+            stream.getAudioTracks().forEach(element => {
+               element.stop()
+            });
             recorder.ondataavailable = function(event){
                 console.log(event.data)
                 
