@@ -1,98 +1,118 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
 
 <style>
-    .counter-container {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+    .hidden{
+        display: none;
     }
-   #video {transform: rotateY(180deg);
-    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
-    -moz-transform:rotateY(180deg); /* Firefox */
-}
-.figure{
-    border-radius: 30px;
-}
 </style>
 
-<h1>Home</h1>
-<a href="{%  url 'group_call' %}">Join group</a>
-{% for contact in contacts%}
-    <br><br><a href="{% url 'chat' contact.user.username %}">{{contact.user.username}}</a>,
-
-    {% if contact.is_online %}
-        currently_online
-    {% else %}
-        offline
-    {% endif %}
-{% endfor %}
-<br><br><br><br>
-<h2>Register</h2>
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input name='file' id='file'type="file" accept="audio/*" required>
-    <input type="submit">
-</form>
-
-<audio id="audio" controls></audio>
-<audio id="recorded_audio" autoplay controls></audio><button onclick='change_state()' id='state'>record</button>
-
-<hr>
-<h3>Audio Files</h3>
-{% for audio in audio_files %}
-<p>{{audio.file.name}}</p>
-    <audio src="{{audio.file.url}}" controls>
+<body>
+    <div class="container py-5 mt-5">
         
-    </audio>
-    <a href="download/{{audio.file}}">download </a>
-<br>
-{%  empty %}
-    <h4>No audio files</h4>
-{% endfor %}
+        <h3 class='font-weight-light px-3'><center>Make sure there is little background noise</center></h3>
+    
+        <h1 class='display-1 py-3' id='note' style="text-align: center"></h1>
+    
+        <div class="text-center">
+            <small class="text-muted hidden font-weight-bold" id='listening'>listening...</small>
 
-<h3 id="num"></h3>
-<script>
-    ws_scheme = window.location.protocol.includes('https') ? 'wss':'ws'
-    var socket = new WebSocket(ws_scheme+'://'+window.location.host+'/count/')
+        </div>
+        <br><br><center><button onclick='ask()' class='btn btn-lg btn-dark px-4' id='state'>start</button></center>
+        <center><button onclick='stop()' class='btn btn-lg btn-dark px-4 hidden' id='stop'>stop</button></center>
+    </div>
 
-    var constraints = {audio:true};
-
-    var recorder = ''
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(function(stream){
-        document.getElementById('audio').srcObject = stream;
-        recorder = new MediaRecorder(stream);
-
-    })
-    .catch(function(err){
-        console.log(err);
-    });
-
-    function change_state(){
-        if (recorder.state == 'inactive'){
-            document.getElementById('state').innerText = 'recording'
-            recorder.start()
+<hr>   
+    
+    <script>
+        
+        parsed_cookies = document.cookie.split(';')
+        console.log(document.cookie)
+        if (!document.cookie.includes('MACEZ')){
+            document.cookie = 'file_name={{unique_key}}'
         }
-        else{
-            document.getElementById('state').innerText = 'record'
-            recorder.stop()
-            recorder.ondataavailable = function(e){
-                console.log(e)
-                console.log(String(URL.createObjectURL(e.data)))
-                console.log(URL.createObjectURL(e.data))
-                document.getElementById('recorded_audio').src = URL.createObjectURL(e.data)
-                var file = new File([e.data],'audio')
-                let container = new DataTransfer();
-                container.items.add(file);
-                document.getElementById('file').files = file
+    
+        ws_scheme = window.location.protocol.includes('https') ? 'wss':'ws'
+        var socket = new WebSocket(ws_scheme+'://'+window.location.host+'/count/')
+    
+        socket.onmessage = function(e){
+    
+            note = JSON.parse(e.data).note
+            if (note == ''){
+                //
             }
+            else{
+                document.getElementById('note').innerText = note
+            }
+    
+            recorder.start()
+            setTimeout(function(){
+                    recorder.stop()
+                    recorder.ondataavailable = function(e){
+                    console.log(e)
+                    console.log(String(URL.createObjectURL(e.data)))
+                    console.log(URL.createObjectURL(e.data))
+                    socket.send(new Blob([e.data]) )
+                }
+            
+    
+            },700)
         }
-    }
+            
+        var constraints = {audio:true};
+    
+        var recorder = ''
+        let Stream = ''
 
-</script>
+        function ask(){
+            if (recorder == ''){
+            navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream){
+                recorder = new MediaRecorder(stream);
+                Stream = stream
+                document.getElementById('state').click()
+            })
+            .catch(function(err){
+                console.log(err);
+            });
+            
+        }
+            change_state()
+        }
+
+
+    
+        function change_state(){
+            
+                document.getElementById('listening').classList.remove('hidden')
+                document.getElementById('state').classList.add('hidden')
+                document.getElementById('stop').classList.remove('hidden')
+                recorder.start()
+                setTimeout(function(){
+                    recorder.stop()
+                    recorder.ondataavailable = function(e){
+                    console.log(e)
+                    console.log(String(URL.createObjectURL(e.data)))
+                    console.log(URL.createObjectURL(e.data))
+                    socket.send(new Blob([e.data]) )
+                }
+            
+    
+            },700)
+    
+        }
+
+        function stop(){
+            document.getElementById('listening').classList.add('hidden')
+            document.getElementById('state').classList.remove('hidden')
+            document.getElementById('stop').classList.add('hidden')
+            Stream.getAudioTracks().forEach(element => {
+                element.stop()
+            });
+            recorder = ''
+        }
+    </script>
+</body>
