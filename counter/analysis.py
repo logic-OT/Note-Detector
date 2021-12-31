@@ -2,10 +2,7 @@ import librosa
 import statistics
 from statistics import mode,median_low
 import numpy
-import soundfile as sf
-import random,string,os
 from websocket.settings import BASE_DIR
-from django.http import HttpRequest
 
 def note_finder(data,meta_data):
         unique_key = meta_data['cookies']['file_name']
