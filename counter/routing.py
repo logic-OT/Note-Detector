@@ -3,6 +3,6 @@ from . import consumers
 
 ws_urls = [
 
-    path('count/',consumers.count.as_asgi()),
-]
+    path('count',consumers.count.as_asgi()),
 
+]
