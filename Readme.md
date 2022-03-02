@@ -7,7 +7,6 @@ A live demo can be seen here [note finder](https://note--ify.herokuapp.com)
 #### Image of demo
 
 ![Screenshot (10)](https://user-images.githubusercontent.com/61668807/156442762-ff91d701-d11d-4fb9-af55-837994a6d656.png)
-
 ## Features
 * getUsermedia Api
 * MediaRecorder Api
